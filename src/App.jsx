@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { supabase } from './supabase'
+import Auth from './Auth'
 
 const labels = {father:'เป็นพ่อของ',mother:'เป็นแม่ของ',spouse:'เป็นคู่สมรสของ'}
 const fields = [['full_name','ชื่อ–นามสกุล','text'],['nickname','ชื่อเล่น','text'],['birth_date','วันเกิด (ค.ศ.)','date'],['death_date','วันที่เสียชีวิต (ถ้ามี / ค.ศ.)','date'],['birthplace','บ้านเกิด','text']]
@@ -8,19 +9,6 @@ function errorText(e) {
   if(e.message?.includes('Invalid login')) return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'
   if(e.message?.includes('Email not confirmed')) return 'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ'
   return e.message || 'เชื่อมต่อไม่สำเร็จ กรุณาลองอีกครั้ง'
-}
-function Auth(){
-  const [signup,setSignup]=useState(false),[busy,setBusy]=useState(false),[note,setNote]=useState('')
-  async function submit(e){
-    e.preventDefault();setBusy(true);setNote('')
-    const f=new FormData(e.currentTarget),credentials={email:f.get('email').trim(),password:f.get('password')}
-    try{
-      const {data,error}=signup?await supabase.auth.signUp(credentials):await supabase.auth.signInWithPassword(credentials)
-      if(error)throw error
-      if(signup&&!data.session)setNote('เปิดอีเมลเพื่อยืนยันการสมัคร แล้วกลับมาเข้าสู่ระบบที่หน้านี้')
-    }catch(e){setNote(errorText(e))}finally{setBusy(false)}
-  }
-  return <main className="auth-page"><section className="auth-card"><p>สาริบุตร • สายใยครอบครัว</p><h1>{signup?'สมัครสมาชิก':'เข้าสู่ระบบ'}</h1><form className="form" onSubmit={submit}><label>อีเมล<input name="email" type="email" autoComplete="email" required/></label><label>รหัสผ่าน<input name="password" type="password" minLength={8} autoComplete={signup?'new-password':'current-password'} required/></label><button className="btn primary" disabled={busy}>{busy?'กำลังดำเนินการ…':signup?'สมัครสมาชิก':'เข้าสู่ระบบ'}</button></form><p role="status">{note}</p><button className="btn secondary full" disabled={busy} onClick={()=>{setSignup(!signup);setNote('')}}>{signup?'มีบัญชีแล้ว เข้าสู่ระบบ':'ยังไม่มีบัญชี สมัครสมาชิก'}</button><p>ข้อมูลเห็นได้เฉพาะบัญชีของคุณ ระบบเชิญญาติจะเพิ่มในขั้นถัดไป</p></section></main>
 }
 function Workspace({user}){
   const [people,setPeople]=useState([]),[relations,setRelations]=useState([]),[selected,setSelected]=useState(''),[query,setQuery]=useState('')

@@ -1,12 +1,12 @@
 # Saributr — สายใยครอบครัว
 
-React / Vite with Supabase email/password authentication and private persisted family records.
+React / Vite with Supabase email OTP authentication and private persisted family records.
 
 ## Use
 1. Apply the family_people and family_relationships SQL provided in the setup conversation.
-2. Enable email/password login in Supabase Auth. For confirmation emails, set Auth URL Configuration > Site URL to the deployed Vercel URL and allow the appropriate redirect URL.
+2. Configure email OTP templates and SMTP as described below. Set Auth Site URL to the deployed Vercel URL.
 3. Deploy with Vercel preset Vite, root ./, output dist.
-4. Sign up, confirm email, sign in, add people, then link relatives.
+4. Request an email OTP, verify it, add people, then link relatives.
 5. Reload to verify persistence.
 
 The project uses the supplied Supabase project URL and publishable browser key by default.
@@ -21,3 +21,14 @@ Current scope: personal family records, a selected person's parents/spouses/chil
 npm ci
 npm run dev
 npm run build
+
+## Email OTP (replaces password UI)
+- In Supabase Authentication > Email Templates, replace the Magic Link body with supabase/templates/email-otp.html. Use the same body for Confirm signup to cover new-account confirmation emails.
+- Subject: รหัสเข้าสู่ระบบสายใยครอบครัว
+- Keep Email provider and new-user signup enabled.
+- Configure custom SMTP before opening registration to the public; Supabase's default mail service restricts recipients and has low sending limits.
+- No SQL changes are required. Existing members use the same email to retain their auth user ID and owned records.
+- UI supports requesting a code, verification, a 60-second resend cooldown, changing the email, and error feedback.
+- Actual email delivery and project template/SMTP settings must be tested in the Supabase project; they are not configured by this repository.
+
+Future LINE OA integration: connect LINE to an already-authenticated account with server-verified identity and explicit linking. Keep the existing Supabase user ID as the family-data owner. Do not merge accounts based on client-supplied LINE IDs. LINE OA is not enabled in this release.
