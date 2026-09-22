@@ -70,7 +70,7 @@ create or replace function public.family_registration_admin(action text,request_
 declare r public.family_registrations%rowtype; h uuid;p uuid;hd jsonb;pd jsonb;
 begin
  if auth.uid() is null or not public.family_is_admin() then raise exception 'เฉพาะ Admin'; end if;
- if action='list' then return coalesce((select jsonb_agg(to_jsonb(x)) from (select r.*,u.email,h.name as home_name,p.full_name from public.family_registrations r join auth.users u on u.id=r.user_id left join public.family_homes h on h.id=r.home_id left join public.family_people p on p.id=r.person_id where r.status='pending' order by r.created_at)x),'[]'); end if;
+ if action='list' then return coalesce((select jsonb_agg(to_jsonb(x)) from (select registration.*,applicant.email,house.name as home_name,person.full_name from public.family_registrations registration join auth.users applicant on applicant.id=registration.user_id left join public.family_homes house on house.id=registration.home_id left join public.family_people person on person.id=registration.person_id where registration.status='pending' order by registration.created_at)x),'[]'); end if;
  perform pg_advisory_xact_lock(73921234);
  select * into r from public.family_registrations where id=request_id and status='pending' for update;
  if not found then raise exception 'ไม่พบคำขอที่รออนุมัติ'; end if;

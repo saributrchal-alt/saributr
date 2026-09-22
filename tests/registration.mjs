@@ -28,6 +28,8 @@ async function denied(fn){await assert.rejects(fn)}
 
 await db.exec(await readFile(new URL('../supabase/migrations/20260925_registration.sql',import.meta.url),'utf8'))
 await db.exec(await readFile(new URL('../supabase/migrations/20260925_registration.sql',import.meta.url),'utf8'))
+await db.exec(await readFile(new URL('../supabase/migrations/20260926_fix_registration_list.sql',import.meta.url),'utf8'))
+await as(admin);assert.deepEqual((await db.query("select family_registration_admin('list') as d")).rows[0].d,[])
 await as(u1);let d=await dashboard();const h1=d.account.home_id
 await as(u3);await denied(()=>dashboard());await denied(()=>act('save_home',{name:'bypass'}));await denied(()=>db.query('select family_dashboard_member()'));await denied(()=>db.query("select family_action_member('save_home','{}')"))
 assert.equal((await db.query('select family_registration_state() as d')).rows[0].d.approved,false)
@@ -35,7 +37,7 @@ const results=(await db.query("select family_registration_search('person','à¸«à¸
 assert.equal(results.length,1);assert.ok(!('birth_date' in results[0]));assert.ok(!('phone' in results[0]))
 const request=(await db.query('select family_register($1::jsonb) as id',[JSON.stringify({home_id:h1,person_id:p1,note:'test'})])).rows[0].id
 await denied(()=>dashboard());await denied(()=>db.query("select family_registration_admin('approve',$1)",[request]))
-await as(admin);await db.query("select family_registration_admin('approve',$1)",[request])
+await as(admin);const listed=(await db.query("select family_registration_admin('list') as d")).rows[0].d;assert.equal(listed.length,1);assert.equal(listed[0].id,request);assert.equal(listed[0].email,'join@test.local');assert.ok(listed[0].full_name);await db.query("select family_registration_admin('approve',$1)",[request]);assert.deepEqual((await db.query("select family_registration_admin('list') as d")).rows[0].d,[])
 await as(u3);d=await dashboard();assert.equal(d.account.home_id,h1);assert.equal(d.account.person_id,p1)
 // A new applicant proposes a house and a new person. Neither exists until approval.
 await db.exec('reset role');const u4='10000000-0000-0000-0000-000000000005';await db.query('insert into auth.users values($1,$2)',[u4,'new@test.local']);await as(u4)
