@@ -22,7 +22,7 @@ export default function Auth() {
     try {
       const {error}=await supabase.auth.signInWithOAuth({
         provider:'custom:line',
-        options:{redirectTo:'https://www.saributr.com',scopes:'openid profile'}
+        options:{redirectTo:'https://www.saributr.com',scopes:'openid profile',queryParams:{bot_prompt:'aggressive'}}
       })
       if(error)throw error
     }catch(e){setError(explain(e))}

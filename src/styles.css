@@ -26,3 +26,11 @@ main{min-width:0;padding:28px}.heading{display:flex;align-items:flex-start;justi
 .registration-card{max-width:700px;width:100%}.registration-review{border-top:1px solid #dfd4c4;padding:18px 0}.registration-card button{margin-top:8px}
 
 .profile-address{border:1px solid #dfd4c4;border-radius:12px;padding:16px;min-width:0;display:grid;gap:12px}.profile-address legend{padding:0 6px}.profile-address p{overflow-wrap:anywhere}
+
+.account-profile{display:flex;align-items:center;gap:12px;margin:12px 0;min-width:0}
+.account-profile img{border-radius:50%;object-fit:cover;flex-shrink:0}
+.account-profile div{min-width:0;overflow-wrap:anywhere}
+.account-profile small{display:block;opacity:.75}
+.registration-overlay{min-height:100dvh;background:rgba(32,48,40,.35);padding:24px 12px;box-sizing:border-box}
+.registration-overlay .registration-card{max-height:calc(100dvh - 48px);overflow-y:auto;box-shadow:0 24px 70px #0003}
+@media(max-width:600px){.registration-overlay{padding:12px}.registration-overlay .registration-card{max-height:calc(100dvh - 24px)}}

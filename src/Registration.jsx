@@ -1,4 +1,5 @@
 import React,{useEffect,useState} from 'react'
+import AccountProfile from './AccountProfile'
 import {supabase} from './supabase'
 import {HomeForm} from './Dashboard'
 import {titleGroups} from './nameTitle'
@@ -17,7 +18,7 @@ export default function RegistrationGate({user,children}){
  useEffect(()=>{load().catch(e=>setError(e.code==='PGRST202'?'ระบบสมัครกำลังอัปเดต กรุณาให้ผู้ดูแลรัน SQL ระบบสมัครสมาชิกก่อน':e.message))},[])
  if(state?.approved)return children
  const request=state?.request
- return <main className="auth-page"><section className="auth-card registration-card"><h1>สมัครสมาชิกสายใยครอบครัว</h1><p>{user.email?'บัญชี: '+user.email:'ยืนยันตัวตนผ่าน LINE แล้ว'}</p>{error&&<p className="alert" role="alert">{error}</p>}
+ return <main className="auth-page registration-overlay"><section className="auth-card registration-card" aria-labelledby="registration-title"><h1 id="registration-title">สมัครสมาชิกสายใยครอบครัว</h1><AccountProfile user={user}/><p>เลือกบ้านครอบครัวและชื่อตนเองเพื่อสมัครต่อ ชื่อ LINE ใช้แสดงบัญชี ไม่เปลี่ยนชื่อจริงในผังครอบครัว</p><p>{user.email?'บัญชี: '+user.email:'ยืนยันตัวตนผ่าน LINE แล้ว'}</p>{error&&<p className="alert" role="alert">{error}</p>}
  {!state?<button className="btn secondary" onClick={()=>load().catch(e=>setError(e.message))}>ตรวจสอบอีกครั้ง</button>:request?.status==='pending'?<><h2>รอ Admin อนุมัติ</h2><p>ส่งคำขอแล้ว เมื่อได้รับอนุมัติจะเข้าสู่ Dashboard ที่บ้านครอบครัวของท่าน</p><button className="btn primary" onClick={()=>load().catch(e=>setError(e.message))}>ตรวจสอบผลอนุมัติ</button></>:<>
  {request?.status==='rejected'&&<p className="alert">คำขอยังไม่ผ่าน: {request.review_note||'กรุณาตรวจสอบข้อมูลและส่งใหม่'}</p>}
  <RegistrationSearch kind="home" label="บ้านครอบครัวที่มีอยู่แล้ว" onSelect={h=>{setHome(h);setDraft(null);setNewHome(false);setPerson(null)}}/>{home&&<p className="success">บ้านที่เลือก: {home.name}</p>}
