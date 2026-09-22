@@ -16,3 +16,12 @@ export function matchesName(person, query) {
   return [person.full_name,person.first_name,person.last_name,person.birth_first_name,person.birth_last_name,person.nickname]
     .filter(Boolean).join(' ').toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())
 }
+
+export function displayName(person) {
+  if (!person) return 'ไม่พบสมาชิก'
+  const current = person.first_name != null
+    ? composeName(person.name_title, person.first_name, person.last_name)
+    : (person.full_name || '')
+  const birth = (person.birth_last_name || '').trim()
+  return birth ? `${current} (${birth})` : current
+}
