@@ -4,11 +4,12 @@ import {deriveKinship} from './kinship'
 import {displayName,matchesName,nameDefaults} from './personNames'
 import {titleGroups} from './nameTitle'
 import HouseMap from './HouseMap'
+import ThaiAddressFields from './ThaiAddressFields'
 import PeoplePicker from './PeoplePicker'
 import RelationshipFinder from './RelationshipFinder'
 import LegacyApp from './LegacyApp'
 const fields=[['first_name','ชื่อปัจจุบัน'],['last_name','นามสกุลปัจจุบัน'],['birth_first_name','ชื่อเดิมแต่เกิด'],['birth_last_name','นามสกุลเดิมแต่เกิด'],['nickname','ชื่อเล่น'],['birth_date','วันเกิด (ค.ศ.)','date'],['death_date','วันที่เสียชีวิต (ค.ศ.)','date'],['birthplace','บ้านเกิด'],['phone','เบอร์ติดต่อ','tel'],['current_address','ที่อยู่ปัจจุบัน'],['biography','ประวัติและเรื่องราว']]
-const homeFields=[['name','ชื่อเรียกบ้านครอบครัว'],['address_line','บ้านเลขที่ หมู่ ถนน'],['subdistrict','ตำบล / แขวง'],['district','อำเภอ / เขต'],['province','จังหวัด'],['postal_code','รหัสไปรษณีย์'],['phone','เบอร์ติดต่อบ้าน']]
+const homeFields=[['name','ชื่อเรียกบ้านครอบครัว'],['address_line','บ้านเลขที่ หมู่ ถนน'],['phone','เบอร์ติดต่อบ้าน']]
 const roles={father:'บิดา',mother:'มารดา',spouse:'คู่สมรส',child:'ลูก',older_sibling:'พี่'}
 export function linkPermitted(d,a,b,t){return !!a&&!!b&&a.id!==b.id&&(d.is_admin||(t!=='older_sibling'&&((a.home_id===b.home_id&&a.home_id===d.account?.home_id)||(a.id===d.account?.person_id&&['father','mother','spouse'].includes(t)))))}
 export default function Dashboard({user}){
@@ -69,7 +70,7 @@ function LinkForm({data,anchor,role,chosen,busy,onSave,onNew}){
 }
 function HomeForm({house,people,busy,onSave}){
  const [point,setPoint]=useState([house?.exact_latitude??'',house?.exact_longitude??''])
- return <form className="form" onSubmit={e=>{e.preventDefault();onSave({...Object.fromEntries(new FormData(e.currentTarget)),id:house?.id,exact_latitude:point[0],exact_longitude:point[1]})}}>{homeFields.map(([k,l])=><label key={k}>{l}<input name={k} required={k==='name'} maxLength={200} defaultValue={house?.[k]||''}/></label>)}<label>ผู้ประสานงานบ้าน<select name="coordinator_id" defaultValue={house?.coordinator_id||''}><option value="">ยังไม่ระบุ</option>{people.filter(p=>p.home_id===house?.id).map(p=><option key={p.id} value={p.id}>{displayName(p)}</option>)}</select></label><p>คลิกแผนที่ปักหมุด หรือกรอกพิกัดบ้านจริง พิกัดละเอียดสงวนให้สมาชิกบ้านและ Admin</p><HouseMap point={point} onPoint={setPoint}/><div className="coordinate-fields">{['ละติจูด','ลองจิจูด'].map((l,i)=><label key={l}>{l}<input type="number" step="any" min={i?-180:-90} max={i?180:90} value={point[i]} onChange={e=>setPoint(p=>p.map((v,j)=>j===i?e.target.value:v))}/></label>)}</div><button type="button" className="btn secondary" onClick={()=>setPoint(['',''])}>ล้างพิกัด</button><button className="btn primary" disabled={busy}>บันทึกบ้าน</button></form>
+ return <form className="form" onSubmit={e=>{e.preventDefault();onSave({...Object.fromEntries(new FormData(e.currentTarget)),id:house?.id,exact_latitude:point[0],exact_longitude:point[1]})}}>{homeFields.map(([k,l])=><label key={k}>{l}<input name={k} required={k==='name'} maxLength={200} defaultValue={house?.[k]||''}/></label>)}<ThaiAddressFields house={house}/><label>ผู้ประสานงานบ้าน<select name="coordinator_id" defaultValue={house?.coordinator_id||''}><option value="">ยังไม่ระบุ</option>{people.filter(p=>p.home_id===house?.id).map(p=><option key={p.id} value={p.id}>{displayName(p)}</option>)}</select></label><p>คลิกแผนที่ปักหมุด หรือกรอกพิกัดบ้านจริง พิกัดละเอียดสงวนให้สมาชิกบ้านและ Admin</p><HouseMap point={point} onPoint={setPoint}/><div className="coordinate-fields">{['ละติจูด','ลองจิจูด'].map((l,i)=><label key={l}>{l}<input type="number" step="any" min={i?-180:-90} max={i?180:90} value={point[i]} onChange={e=>setPoint(p=>p.map((v,j)=>j===i?e.target.value:v))}/></label>)}</div><button type="button" className="btn secondary" onClick={()=>setPoint(['',''])}>ล้างพิกัด</button><button className="btn primary" disabled={busy}>บันทึกบ้าน</button></form>
 }
 function JoinForm({data,busy,onSave}){
  const [home,setHome]=useState(data.account?.home_id||''),[person,setPerson]=useState(null)
