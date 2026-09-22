@@ -24,7 +24,6 @@ export function joinName(title, name) {
 }
 export function siblingRole(order, fullName, gender) {
   if (order !== 'พี่' && order !== 'น้อง') return order
-  const {title} = splitName(fullName)
-  const suffix = gender==='male' ? 'ชาย' : gender==='female' ? 'สาว' : ['นาย','ด.ช.','พระ','พระมหา','พระครู','พระอาจารย์','สามเณร'].includes(title) ? 'ชาย' : ['นาง','นางสาว','ด.ญ.','แม่ชี','ภิกษุณี','สามเณรี'].includes(title) ? 'สาว' : ''
+  const suffix = gender==='male' ? 'ชาย' : gender==='female' ? 'สาว' : ''
   return order + suffix
 }
