@@ -1,6 +1,6 @@
 import React from 'react'
 export default function AccountProfile({user}){
- const identity=user.identities?.find(i=>i.provider==='custom:line')
+ const identity=user.identities?.find(i=>i.provider==='custom:line-oauth')
  const profile=identity?.identity_data||user.user_metadata||{}
  const name=profile.name||profile.full_name||profile.display_name
  const picture=profile.picture||profile.avatar_url

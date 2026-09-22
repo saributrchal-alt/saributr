@@ -16,10 +16,10 @@ const {default:Gate}=await server.ssrLoadModule('/src/Registration.jsx')
 const root=createRoot(document.getElementById('root'))
 await act(async()=>root.render(React.createElement(Auth)))
 await act(async()=>[...document.querySelectorAll('button')].find(b=>b.textContent.includes('ด้วย LINE')).click())
-assert.equal(oauth.provider,'custom:line');assert.equal(oauth.options.queryParams.bot_prompt,'aggressive')
+assert.equal(oauth.provider,'custom:line-oauth');assert.equal(oauth.options.queryParams.bot_prompt,'aggressive')
 assert.equal(oauth.options.redirectTo,'https://www.saributr.com')
 assert.match(document.body.textContent,/LINE unavailable/)
-await act(async()=>root.render(React.createElement(Gate,{user:{id:'u',email:null,identities:[{provider:'custom:line',identity_data:{name:'LINE Test',picture:'https://example.com/avatar.jpg'}}]}},React.createElement('p',null,'PRIVATE DASHBOARD'))))
+await act(async()=>root.render(React.createElement(Gate,{user:{id:'u',email:null,identities:[{provider:'custom:line-oauth',identity_data:{name:'LINE Test',picture:'https://example.com/avatar.jpg'}}]}},React.createElement('p',null,'PRIVATE DASHBOARD'))))
 assert.match(document.body.textContent,/รอ Admin อนุมัติ/);assert.ok(!document.body.textContent.includes('PRIVATE DASHBOARD'))
 assert.match(document.body.textContent,/ยืนยันตัวตนผ่าน LINE/);assert.ok(!document.querySelector('input[type=password]'));
 assert.match(document.body.textContent,/LINE Test/);assert.equal(document.querySelector('img').getAttribute('src'),'https://example.com/avatar.jpg');

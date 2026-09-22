@@ -21,7 +21,7 @@ export default function Auth() {
     lock.current=true;setBusy(true);setError('')
     try {
       const {error}=await supabase.auth.signInWithOAuth({
-        provider:'custom:line',
+        provider:'custom:line-oauth',
         options:{redirectTo:'https://www.saributr.com',scopes:'openid profile',queryParams:{bot_prompt:'aggressive'}}
       })
       if(error)throw error
