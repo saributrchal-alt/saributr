@@ -16,6 +16,18 @@ export default function Auth() {
     const timer=setInterval(()=>setRemaining(Math.max(0,Math.ceil((nextSend.current-Date.now())/1000))),1000)
     return ()=>clearInterval(timer)
   },[])
+  async function loginLine() {
+    if(lock.current)return
+    lock.current=true;setBusy(true);setError('')
+    try {
+      const {error}=await supabase.auth.signInWithOAuth({
+        provider:'custom:line',
+        options:{redirectTo:'https://www.saributr.com',scopes:'openid profile'}
+      })
+      if(error)throw error
+    }catch(e){setError(explain(e))}
+    finally{lock.current=false;setBusy(false)}
+  }
   async function send(address) {
     if(lock.current||Date.now()<nextSend.current)return
     lock.current=true;setBusy(true);setError('');setNote('')
@@ -42,6 +54,7 @@ export default function Auth() {
   return <main className="auth-page"><section className="auth-card">
     <p>สาริบุตร • สายใยครอบครัว</p>
     <h1>{email?'ยืนยันรหัส OTP':'สมัคร / เข้าสู่ระบบ'}</h1>
+    {!email&&<><button className="btn primary" style={{background:'#06C755',color:'#fff',width:'100%',marginBottom:16}} disabled={busy} onClick={loginLine}>สมัคร / เข้าสู่ระบบด้วย LINE</button><p>สมาชิกใหม่เลือกบ้านและชื่อตนเอง แล้วรอ Admin อนุมัติ</p></>}
     {email?<><p>กรอกรหัสที่ส่งไปยัง <strong style={{overflowWrap:'anywhere'}}>{email}</strong></p>
       <form className="form" onSubmit={verify}><label>รหัสจากอีเมล<input key={email} name="token" type="text" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6,10}" minLength={6} maxLength={10} autoFocus required/></label>
       <button className="btn primary" disabled={busy}>{busy?'กำลังดำเนินการ…':'ยืนยันและเข้าสู่ระบบ'}</button></form>
