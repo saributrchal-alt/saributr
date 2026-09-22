@@ -32,7 +32,8 @@ export function deriveKinship(selected, people, relations) {
     return false
   }
   function order(a,b) {
-    const x=byId.get(a)?.birth_date,y=byId.get(b)?.birth_date,r=explicit(a,b)
+    const pa=byId.get(a),pb=byId.get(b),ranked=Number.isFinite(pa?.age_order)&&Number.isFinite(pb?.age_order)
+    const x=ranked?pa.age_order:pa?.birth_date,y=ranked?pb.age_order:pb?.birth_date,r=explicit(a,b)
     const fromDate=x&&y&&x!==y ? (y<x?'พี่':'น้อง') : null
     const fromRecord=r ? (r.person_id===b?'พี่':'น้อง') : null
     if(fromDate&&fromRecord&&fromDate!==fromRecord)return 'ลำดับที่ระบุขัดกับวันเกิด'
