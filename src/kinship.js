@@ -36,7 +36,7 @@ export function deriveKinship(selected, people, relations) {
     const fromDate=x&&y&&x!==y ? (y<x?'พี่':'น้อง') : null
     const fromRecord=r ? (r.person_id===b?'พี่':'น้อง') : null
     if(fromDate&&fromRecord&&fromDate!==fromRecord)return 'ลำดับที่ระบุขัดกับวันเกิด'
-    return siblingRole(fromRecord||fromDate||(x&&y&&x===y?'เกิดวันเดียวกัน ยังไม่ระบุลำดับ':'ยังไม่ทราบลำดับอายุ'), byId.get(b)?.full_name)
+    return siblingRole(fromRecord||fromDate||(x&&y&&x===y?'เกิดวันเดียวกัน ยังไม่ระบุลำดับ':'ยังไม่ทราบลำดับอายุ'), byId.get(b)?.full_name, byId.get(b)?.kinship_gender)
   }
   const siblings=[], cousins=[]
   for(const p of people) {
