@@ -1,3 +1,5 @@
+import { siblingRole } from './nameTitle.js'
+
 // Derived relationships are never persisted: editing a parent updates the result.
 export function deriveKinship(selected, people, relations) {
   const byId = new Map(people.map(p => [p.id, p]))
@@ -34,7 +36,7 @@ export function deriveKinship(selected, people, relations) {
     const fromDate=x&&y&&x!==y ? (y<x?'พี่':'น้อง') : null
     const fromRecord=r ? (r.person_id===b?'พี่':'น้อง') : null
     if(fromDate&&fromRecord&&fromDate!==fromRecord)return 'ลำดับที่ระบุขัดกับวันเกิด'
-    return fromRecord||fromDate||(x&&y&&x===y?'เกิดวันเดียวกัน ยังไม่ระบุลำดับ':'ยังไม่ทราบลำดับอายุ')
+    return siblingRole(fromRecord||fromDate||(x&&y&&x===y?'เกิดวันเดียวกัน ยังไม่ระบุลำดับ':'ยังไม่ทราบลำดับอายุ'), byId.get(b)?.full_name)
   }
   const siblings=[], cousins=[]
   for(const p of people) {
