@@ -10,7 +10,7 @@ function explain(error) {
 
 export default function Auth() {
   const [email,setEmail]=useState(''),[busy,setBusy]=useState(false),[note,setNote]=useState(''),[error,setError]=useState('')
-  const [remaining,setRemaining]=useState(0)
+  const [remaining,setRemaining]=useState(0),[mode,setMode]=useState('password')
   const lock=useRef(false), nextSend=useRef(0)
   useEffect(()=>{
     const timer=setInterval(()=>setRemaining(Math.max(0,Math.ceil((nextSend.current-Date.now())/1000))),1000)
@@ -47,10 +47,11 @@ export default function Auth() {
       <button className="btn primary" disabled={busy}>{busy?'กำลังดำเนินการ…':'ยืนยันและเข้าสู่ระบบ'}</button></form>
       <div className="otp-actions"><button className="btn secondary" disabled={busy||remaining>0} onClick={()=>send(email)}>{remaining>0?'ส่งรหัสใหม่ได้ใน '+remaining+' วินาที':'ส่งรหัสใหม่'}</button>
       <button className="btn secondary" disabled={busy} onClick={()=>{setEmail('');setError('');setNote('')}}>เปลี่ยนอีเมล</button></div>
-    </>:<><p>รับรหัสยืนยันทางอีเมล โดยไม่ต้องตั้งรหัสผ่าน</p>
+    </>:<><div className="actions"><button className="btn secondary" onClick={()=>setMode('password')}>เข้าสู่ระบบด้วยรหัสผ่าน</button><button className="btn secondary" onClick={()=>setMode('otp')}>สมัครใหม่ / ใช้ OTP / ลืมรหัสผ่าน</button></div>
+ {mode==='password'?<form className="form" onSubmit={async e=>{e.preventDefault();if(lock.current)return;lock.current=true;setBusy(true);setError('');try{const f=new FormData(e.currentTarget);const {error}=await supabase.auth.signInWithPassword({email:f.get('email').trim(),password:f.get('password')});if(error)throw error}catch(e){setError(explain(e))}finally{lock.current=false;setBusy(false)}}}><label>อีเมล<input name="email" type="email" autoComplete="email" required/></label><label>รหัสผ่าน<input name="password" type="password" autoComplete="current-password" required/></label><button className="btn primary" disabled={busy}>เข้าสู่ระบบ</button></form>:<><p>ยืนยันอีเมลด้วย OTP ก่อนเลือกบ้านและชื่อตนเอง แล้วส่งคำขอให้ Admin อนุมัติ</p>
       <form className="form" onSubmit={e=>{e.preventDefault();send(new FormData(e.currentTarget).get('email').trim())}}><label>อีเมล<input name="email" type="email" autoComplete="email" required/></label><button className="btn primary" disabled={busy||remaining>0}>{busy?'กำลังส่งรหัส…':remaining>0?'ขอรหัสใหม่ได้ใน '+remaining+' วินาที':'รับรหัส OTP'}</button></form>
-      <p>สมาชิกเดิมใช้อีเมลเดิมเพื่อเข้าถึงข้อมูลครอบครัว สมาชิกใหม่ใช้ขั้นตอนเดียวกันเพื่อเริ่มใช้งาน</p></>}
+      <p>หากลืมรหัสผ่าน ให้ใช้ OTP เข้าบัญชีเดิม แล้วตั้งรหัสผ่านใหม่</p></>}</>}
     {error&&<p className="alert" role="alert">{error}</p>}{note&&<p role="status">{note}</p>}
-    <p>ข้อมูลครอบครัวเห็นได้เฉพาะบัญชีของคุณ</p>
+    <p>Dashboard เปิดให้สมาชิกที่ผ่านการอนุมัติ โดยข้อมูลส่วนตัวจำกัดตามสิทธิ์บ้าน</p>
   </section></main>
 }
