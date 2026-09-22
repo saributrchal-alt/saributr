@@ -5,6 +5,7 @@ import {displayName,matchesName,nameDefaults} from './personNames'
 import {titleGroups} from './nameTitle'
 import HouseMap from './HouseMap'
 import PeoplePicker from './PeoplePicker'
+import RelationshipFinder from './RelationshipFinder'
 import LegacyApp from './LegacyApp'
 const fields=[['first_name','ชื่อปัจจุบัน'],['last_name','นามสกุลปัจจุบัน'],['birth_first_name','ชื่อเดิมแต่เกิด'],['birth_last_name','นามสกุลเดิมแต่เกิด'],['nickname','ชื่อเล่น'],['birth_date','วันเกิด (ค.ศ.)','date'],['death_date','วันที่เสียชีวิต (ค.ศ.)','date'],['birthplace','บ้านเกิด'],['phone','เบอร์ติดต่อ','tel'],['current_address','ที่อยู่ปัจจุบัน'],['biography','ประวัติและเรื่องราว']]
 const homeFields=[['name','ชื่อเรียกบ้านครอบครัว'],['address_line','บ้านเลขที่ หมู่ ถนน'],['subdistrict','ตำบล / แขวง'],['district','อำเภอ / เขต'],['province','จังหวัด'],['postal_code','รหัสไปรษณีย์'],['phone','เบอร์ติดต่อบ้าน']]
@@ -27,6 +28,7 @@ export default function Dashboard({user}){
  return <div className="shell"><header className="topbar"><a className="brand" href="#top"><b>ส</b><span><strong>สายใยครอบครัว</strong><small>สาริบุตร</small></span></a><span className="account-email">{user.email}{d.is_admin?' · Admin':''}</span><button className="btn secondary" disabled={busy} onClick={async()=>{const {error}=await supabase.auth.signOut();if(error)setError(error.message)}}>ออกจากระบบ</button></header>
  <main className="workspace" id="top"><div className="heading"><div><p className="eyebrow">บ้านและเครือญาติของเรา</p><h1>Dashboard ครอบครัว</h1><p>{d.homes.length} บ้าน · {d.people.length} คน</p></div><div className="actions"><button className="btn secondary" onClick={()=>open({type:'join'})}>บ้านและตัวฉัน</button>{(!d.account||d.is_admin)&&<button className="btn primary" onClick={()=>open({type:'home'})}>+ สร้างบ้าน</button>}</div></div>
  {error&&<p className="alert" role="alert">{error}</p>}{notice&&<p className="success" role="status">{notice}</p>}{loading?<p>กำลังโหลด…</p>:<>
+ <RelationshipFinder people={d.people} homes={d.homes} relations={d.relations}/>
  <div className="map-panel"><HouseMap homes={d.homes} selected={home} onSelect={chooseHome}/><p className="map-caption">พิกัดบนแผนที่กลางเป็นตำแหน่งโดยประมาณ · คลิกหมุดหรือเลือกบ้านด้านล่างเพื่อดูสมาชิก</p></div>
  <div className="toolbar"><input aria-label="ค้นหาชื่อหรือบ้าน" placeholder="ค้นหาชื่อ ชื่อเดิม นามสกุล ชื่อเล่น หรือบ้าน" value={q} onChange={e=>setQ(e.target.value)}/><button className="btn secondary" disabled={busy} onClick={()=>load().catch(e=>setError(e.message))}>โหลดใหม่</button></div>
  <div className="home-tabs"><button className={'chip '+(!home?'active':'')} onClick={()=>setHome('')}>ทุกบ้าน</button>{d.homes.filter(x=>!q||x.name.includes(q)||d.people.some(y=>y.home_id===x.id&&matchesName(y,q))).map(x=><button className={'chip '+(home===x.id?'active':'')} key={x.id} onClick={()=>chooseHome(x.id)}>{x.name} · {x.member_count} คน{x.id===myHome?.id?' · บ้านฉัน':''}</button>)}</div>
