@@ -18,10 +18,8 @@ export function matchesName(person, query) {
 }
 
 export function displayName(person) {
-  if (!person) return 'ไม่พบสมาชิก'
-  const current = person.first_name != null
-    ? composeName(person.name_title, person.first_name, person.last_name)
-    : (person.full_name || '')
-  const birth = (person.birth_last_name || '').trim()
-  return birth ? `${current} (${birth})` : current
+ if(!person)return 'ไม่พบสมาชิก'
+ const old=(current,birth)=>{const c=(current||'').trim(),b=(birth||'').trim();return c+(b&&b!==c?'('+b+')':'')}
+ if(person.first_name==null)return person.full_name||''
+ return composeName(person.name_title,old(person.first_name,person.birth_first_name),old(person.last_name,person.birth_last_name))
 }
