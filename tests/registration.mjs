@@ -107,4 +107,19 @@ console.log('PASS occupation save, trim, clear and access control')
 console.log('PASS private contact: owner access, admin on-demand, same-house denied, hidden fields preserved')
 await db.exec('reset role');await db.query('delete from family_accounts where user_id=$1',[u4]);await as(u4);await denied(()=>dashboard())
 console.log('PASS avatars: linked LINE photo, cross-house privacy, anonymous and unapproved denied, repeat-safe migration')
-console.log('PASS registration: gating, RPC bypass denied, minimal search, admin approval, drafts, rejection and resubmission, existing members, anonymous denied');await db.close()
+console.log('PASS registration: gating, RPC bypass denied, minimal search, admin approval, drafts, rejection and resubmission, existing members, anonymous denied');
+await db.exec('reset role');await db.exec(await readFile(new URL('../supabase/migrations/20261003_card_import.sql',import.meta.url),'utf8'));await db.exec(await readFile(new URL('../supabase/migrations/20261003_card_import.sql',import.meta.url),'utf8'));
+const importCard=payload=>db.query('select family_import_person($1::jsonb) as r',[JSON.stringify(payload)]);
+await as(admin);
+const cardPayload={citizen_id:'0000000000000',home_id:h1,name_title:'นาย',first_name:'ทดสอบบัตร',last_name:'ทดสอบ',kinship_gender:'male',birth_date:'2000-01-01',confirm_distinct:true};
+const imported=(await importCard(cardPayload)).rows[0].r.id;
+assert.equal((await db.query('select family_card_match($1) as id',['0000000000000'])).rows[0].id,imported);
+assert.equal((await db.query('select family_private_details($1) as d',[imported])).rows[0].d.citizen_id,'0000000000000');
+assert.ok(!JSON.stringify(await dashboard()).includes('0000000000000'));
+await denied(()=>importCard(cardPayload));await importCard({...cardPayload,id:imported});
+await denied(()=>importCard({...cardPayload,id:imported,citizen_id:'1111111111111'}));await denied(()=>importCard({...cardPayload,citizen_id:'bad'}));
+await as(u1);await denied(()=>db.query('select family_private_details($1)',[imported]));await denied(()=>importCard(cardPayload));await denied(()=>db.query('select family_card_match($1)',['0000000000000']));await denied(()=>db.query('select * from family_identity_private'));
+await as(null,'anon');await denied(()=>importCard(cardPayload));
+await as(admin);await importCard({...cardPayload,id:p1,citizen_id:'1111111111111'});await db.exec('reset role');const linkedOwner=(await db.query('select user_id from family_accounts where person_id=$1',[p1])).rows[0].user_id;await as(linkedOwner);assert.equal((await db.query('select family_private_details($1) as d',[p1])).rows[0].d.citizen_id,'1111111111111');
+console.log('PASS card import: atomic save, duplicates, identity mismatch, private table, owner/admin access, household/anonymous denied');
+await db.close()

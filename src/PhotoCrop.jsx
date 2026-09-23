@@ -1,7 +1,7 @@
 import CameraCapture from './CameraCapture'
 import React,{useEffect,useRef,useState} from 'react'
-export default function PhotoCrop({person}){
- const [source,setSource]=useState(null),[zoom,setZoom]=useState(1),[x,setX]=useState(50),[y,setY]=useState(50),[photo,setPhoto]=useState(null),[error,setError]=useState('')
+export default function PhotoCrop({person,initialPhoto=null}){
+ const [source,setSource]=useState(null),[zoom,setZoom]=useState(1),[x,setX]=useState(50),[y,setY]=useState(50),[photo,setPhoto]=useState(initialPhoto),[error,setError]=useState('')
  const canvas=useRef(null),generation=useRef(0)
  useEffect(()=>()=>{generation.current++},[])
  useEffect(()=>{if(!source||!canvas.current)return;const c=canvas.current,ctx=c.getContext('2d'),size=Math.min(source.width,source.height)/zoom;ctx.fillStyle='#fff';ctx.fillRect(0,0,256,256);ctx.drawImage(source,(source.width-size)*x/100,(source.height-size)*y/100,size,size,0,0,256,256)},[source,zoom,x,y])
