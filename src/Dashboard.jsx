@@ -1,3 +1,4 @@
+import PhotoCrop from './PhotoCrop'
 import MarriageHistory,{marriageStatuses} from './MarriageHistory'
 import PrivateDetails from './PrivateDetails'
 import PersonAvatar from './PersonAvatar'
@@ -65,6 +66,7 @@ function PersonForm({person,homeId,data,busy,link,onSave,onSelect}){
  const defaults=nameDefaults(person),[first,setFirst]=useState(defaults.first_name),[last,setLast]=useState(defaults.last_name),[distinct,setDistinct]=useState(false),[targetHome,setTargetHome]=useState(homeId||data.account?.home_id||'')
  const search=[first,last].filter(Boolean).join(' '),matches=!person&&search.trim()?data.people.filter(p=>matchesName(p,search)):[]
  return <form className="form" onSubmit={e=>{e.preventDefault();const values=profileFormValues(e.currentTarget);if(person&&data.is_admin&&person.id!==data.account?.person_id){for(const k of ['birth_date','phone'])if(!values[k])delete values[k]}onSave({...values,id:person?.id,home_id:targetHome,confirm_distinct:distinct,...(link?{link_anchor:link.anchor.id,link_role:link.role,parent_role:link.parentRole,other_parent_id:link.otherParent}:{})})}}>
+ <PhotoCrop person={person}/>
  {link?.role==='child'&&<p>เด็กคนนี้เป็นลูกของ {displayName(link.anchor)} กับ {link.otherParent?displayName(data.people.find(p=>p.id===link.otherParent)):'ยังไม่ทราบอีกฝ่าย'}</p>}
  {link&&<p>เพิ่ม{roles[link.role]}ของ {displayName(link.anchor)} · บันทึกและเชื่อมพร้อมกัน</p>}
  <label>บ้านครอบครัว<select required disabled={!data.is_admin} value={targetHome} onChange={e=>setTargetHome(e.target.value)}><option value="">เลือกบ้าน</option>{data.homes.filter(h=>h.can_edit).map(h=><option key={h.id} value={h.id}>{h.name}</option>)}</select></label>
