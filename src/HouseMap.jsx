@@ -5,7 +5,7 @@ export default function HouseMap({homes=[],selected,onSelect,onPoint,point}) {
  const node=useRef(null),map=useRef(null),layer=useRef(null),callbacks=useRef({onSelect,onPoint})
  callbacks.current={onSelect,onPoint}
  useEffect(()=>{
-  const m=L.map(node.current,{scrollWheelZoom:false}).setView([15.5,101],5);map.current=m
+  const m=L.map(node.current,{scrollWheelZoom:false,dragging:!L.Browser.mobile,touchZoom:false}).setView([15.5,101],5);map.current=m
   L.tileLayer(import.meta.env.VITE_MAP_TILE_URL||'https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(m)
   layer.current=L.layerGroup().addTo(m)
   m.on('click',e=>callbacks.current.onPoint?.([Number(e.latlng.lat.toFixed(6)),Number(e.latlng.lng.toFixed(6))]))
